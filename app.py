@@ -22,13 +22,17 @@ st.set_page_config(
 )
 
 # ════════════════════════════════════════════════════════════════════════════
+# THEME STATE (Light / Dark toggle)
+# ════════════════════════════════════════════════════════════════════════════
+if "dark_mode" not in st.session_state:
+    st.session_state["dark_mode"] = True
+
+# ════════════════════════════════════════════════════════════════════════════
 # DESIGN SYSTEM + ANIMATIONS  (v4 — Upgraded)
 # ════════════════════════════════════════════════════════════════════════════
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
-
-:root {
+def get_css(dark=True):
+    if dark:
+        vars_css = """
   --bg:      #020810;
   --bg2:     #050d1e;
   --bg3:     #081228;
@@ -50,19 +54,32 @@ st.markdown("""
   --text2:   #94a3b8;
   --bright:  #f1f5f9;
   --dim:     #475569;
-}
-
-*,*::before,*::after{box-sizing:border-box}
-html,body,[class*="css"]{font-family:'Space Grotesk',sans-serif!important;background:var(--bg)!important;color:var(--text)!important}
-.stApp{background:var(--bg)!important}
-.block-container{padding:0 1.5rem 3rem 1.5rem!important;max-width:1520px}
-#MainMenu,footer,header,[data-testid="stToolbar"],.stDeployButton{display:none!important;visibility:hidden!important}
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:var(--blue)}
-
-/* ── BG EFFECTS ── */
+"""
+    else:
+        vars_css = """
+  --bg:      #f0f4ff;
+  --bg2:     #e8eef8;
+  --bg3:     #dde5f5;
+  --surf:    #ffffff;
+  --surf2:   #f5f8ff;
+  --border:  #c3d1ea;
+  --border2: #a3b8d8;
+  --blue:    #2563eb;
+  --blue2:   #1d4ed8;
+  --cyan:    #0891b2;
+  --green:   #059669;
+  --green2:  #047857;
+  --amber:   #d97706;
+  --red:     #dc2626;
+  --purple:  #7c3aed;
+  --pink:    #db2777;
+  --orange:  #ea580c;
+  --text:    #1e293b;
+  --text2:   #334155;
+  --bright:  #0f172a;
+  --dim:     #64748b;
+"""
+    bg_effects = """
 .stApp::before{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:
@@ -71,528 +88,575 @@ html,body,[class*="css"]{font-family:'Space Grotesk',sans-serif!important;backgr
     radial-gradient(ellipse 40% 35% at 65% 50%,  rgba(6,182,212,.05)   0%,transparent 50%),
     radial-gradient(ellipse 30% 25% at 50% 20%,  rgba(236,72,153,.04)  0%,transparent 45%);
   animation:bgPulse 14s ease-in-out infinite alternate}
-@keyframes bgPulse{0%{opacity:.5}100%{opacity:1}}
+""" if dark else """
+.stApp::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 8%,  rgba(37,99,235,.06)  0%,transparent 55%),
+    radial-gradient(ellipse 50% 60% at 85% 92%,  rgba(124,58,237,.05)  0%,transparent 55%);
+  animation:bgPulse 14s ease-in-out infinite alternate}
+"""
+    return f"""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+:root {{
+{vars_css}
+}}
+
+*,*::before,*::after{{box-sizing:border-box}}
+html,body,[class*="css"]{{font-family:'Space Grotesk',sans-serif!important;background:var(--bg)!important;color:var(--text)!important}}
+.stApp{{background:var(--bg)!important}}
+.block-container{{padding:0 1.5rem 3rem 1.5rem!important;max-width:1520px}}
+#MainMenu,footer,header,[data-testid="stToolbar"],.stDeployButton{{display:none!important;visibility:hidden!important}}
+::-webkit-scrollbar{{width:5px;height:5px}}
+::-webkit-scrollbar-track{{background:var(--bg)}}
+::-webkit-scrollbar-thumb{{background:var(--border2);border-radius:3px}}
+::-webkit-scrollbar-thumb:hover{{background:var(--blue)}}
+
+/* ── BG EFFECTS ── */
+{bg_effects}
+@keyframes bgPulse{{0%{{opacity:.5}}100%{{opacity:1}}}}
 
 /* Particle grid */
-.stApp::after{
+.stApp::after{{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:
     linear-gradient(rgba(59,130,246,.03) 1px,transparent 1px),
     linear-gradient(90deg,rgba(59,130,246,.03) 1px,transparent 1px);
   background-size:44px 44px;
-  animation:gridDrift 20s linear infinite}
-@keyframes gridDrift{0%{transform:translateY(0)}100%{transform:translateY(44px)}}
+  animation:gridDrift 20s linear infinite}}
+@keyframes gridDrift{{0%{{transform:translateY(0)}}100%{{transform:translateY(44px)}}}}
 
 /* ── KEYFRAMES ── */
-@keyframes fadeDown {from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeUp   {from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn   {from{opacity:0}to{opacity:1}}
-@keyframes slideIn  {from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
-@keyframes slideRight{from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)}}
-@keyframes scaleIn  {from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)}}
-@keyframes popIn    {from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
-@keyframes barGrow  {from{width:0!important}}
-@keyframes spin     {to{transform:rotate(360deg)}}
-@keyframes spinSlow {to{transform:rotate(360deg)}}
-@keyframes pulseDot {0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.65)}}
-@keyframes glowRing {0%,100%{box-shadow:0 0 20px rgba(59,130,246,.25),0 0 50px rgba(59,130,246,.1)}
-                     50%{box-shadow:0 0 35px rgba(59,130,246,.5),0 0 80px rgba(59,130,246,.2)}}
-@keyframes neonPulse{0%,100%{text-shadow:0 0 8px rgba(96,165,250,.6)}
-                     50%{text-shadow:0 0 20px rgba(96,165,250,1),0 0 40px rgba(6,182,212,.5)}}
-@keyframes scanLine {0%{top:-2px}100%{top:100%}}
-@keyframes typewrite{from{width:0}to{width:100%}}
-@keyframes dash     {to{stroke-dashoffset:0}}
-@keyframes countUp  {from{opacity:0;transform:scale(.4) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
-@keyframes shimmer  {0%{background-position:-600px 0}100%{background-position:600px 0}}
-@keyframes float    {0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-@keyframes orbit    {0%{transform:rotate(0deg) translateX(28px) rotate(0deg)}
-                     100%{transform:rotate(360deg) translateX(28px) rotate(-360deg)}}
+@keyframes fadeDown {{from{{opacity:0;transform:translateY(-20px)}}to{{opacity:1;transform:translateY(0)}}}}
+@keyframes fadeUp   {{from{{opacity:0;transform:translateY(20px)}} to{{opacity:1;transform:translateY(0)}}}}
+@keyframes fadeIn   {{from{{opacity:0}}to{{opacity:1}}}}
+@keyframes slideIn  {{from{{opacity:0;transform:translateX(-20px)}}to{{opacity:1;transform:translateX(0)}}}}
+@keyframes slideRight{{from{{opacity:0;transform:translateX(20px)}} to{{opacity:1;transform:translateX(0)}}}}
+@keyframes scaleIn  {{from{{opacity:0;transform:scale(.9)}} to{{opacity:1;transform:scale(1)}}}}
+@keyframes popIn    {{from{{opacity:0;transform:scale(.7)}}to{{opacity:1;transform:scale(1)}}}}
+@keyframes barGrow  {{from{{width:0!important}}}}
+@keyframes spin     {{to{{transform:rotate(360deg)}}}}
+@keyframes spinSlow {{to{{transform:rotate(360deg)}}}}
+@keyframes pulseDot {{0%,100%{{opacity:1;transform:scale(1)}}50%{{opacity:.3;transform:scale(.65)}}}}
+@keyframes glowRing {{0%,100%{{box-shadow:0 0 20px rgba(59,130,246,.25),0 0 50px rgba(59,130,246,.1)}}
+                     50%{{box-shadow:0 0 35px rgba(59,130,246,.5),0 0 80px rgba(59,130,246,.2)}}}}
+@keyframes neonPulse{{0%,100%{{text-shadow:0 0 8px rgba(96,165,250,.6)}}
+                     50%{{text-shadow:0 0 20px rgba(96,165,250,1),0 0 40px rgba(6,182,212,.5)}}}}
+@keyframes scanLine {{0%{{top:-2px}}100%{{top:100%}}}}
+@keyframes typewrite{{from{{width:0}}to{{width:100%}}}}
+@keyframes dash     {{to{{stroke-dashoffset:0}}}}
+@keyframes countUp  {{from{{opacity:0;transform:scale(.4) translateY(20px)}}to{{opacity:1;transform:scale(1) translateY(0)}}}}
+@keyframes shimmer  {{0%{{background-position:-600px 0}}100%{{background-position:600px 0}}}}
+@keyframes float    {{0%,100%{{transform:translateY(0)}}50%{{transform:translateY(-6px)}}}}
+@keyframes orbit    {{0%{{transform:rotate(0deg) translateX(28px) rotate(0deg)}}
+                     100%{{transform:rotate(360deg) translateX(28px) rotate(-360deg)}}}}
 
 /* ── HERO ── */
-.hero-wrap{
+.hero-wrap{{
   position:relative;z-index:10;padding:1.8rem 0 1.6rem;
   border-bottom:1px solid var(--border);margin-bottom:2rem;
   display:flex;align-items:center;justify-content:space-between;
-  animation:fadeDown .7s cubic-bezier(.22,1,.36,1) both}
-.hero-logo{display:flex;align-items:center;gap:1.2rem}
-.hero-icon-outer{position:relative;width:68px;height:68px;animation:float 4s ease-in-out infinite}
-.hero-ring1{
+  animation:fadeDown .7s cubic-bezier(.22,1,.36,1) both}}
+.hero-logo{{display:flex;align-items:center;gap:1.2rem}}
+.hero-icon-outer{{position:relative;width:68px;height:68px;animation:float 4s ease-in-out infinite}}
+.hero-ring1{{
   position:absolute;inset:-8px;border-radius:50%;
   border:1.5px solid transparent;
   background:linear-gradient(var(--bg),var(--bg)) padding-box,
              conic-gradient(from 0deg,var(--blue),var(--purple),var(--cyan),var(--blue)) border-box;
-  animation:spin 6s linear infinite}
-.hero-ring2{
+  animation:spin 6s linear infinite}}
+.hero-ring2{{
   position:absolute;inset:-16px;border-radius:50%;
   border:1px solid transparent;
   background:linear-gradient(var(--bg),var(--bg)) padding-box,
              conic-gradient(from 180deg,var(--pink),var(--blue),var(--cyan),var(--pink)) border-box;
-  animation:spin 10s linear infinite reverse;opacity:.4}
-.hero-orbit-dot{
+  animation:spin 10s linear infinite reverse;opacity:.4}}
+.hero-orbit-dot{{
   position:absolute;top:50%;left:50%;width:7px;height:7px;
   margin:-3.5px 0 0 -3.5px;border-radius:50%;
   background:var(--cyan);box-shadow:0 0 10px var(--cyan);
-  animation:orbit 3s linear infinite}
-.hero-core{
+  animation:orbit 3s linear infinite}}
+.hero-core{{
   width:68px;height:68px;border-radius:18px;
   background:linear-gradient(135deg,#1d4ed8,var(--blue),var(--cyan));
   display:flex;align-items:center;justify-content:center;font-size:1.8rem;
-  box-shadow:0 0 40px rgba(59,130,246,.5);animation:glowRing 4s ease infinite}
-.hero-name{
+  box-shadow:0 0 40px rgba(59,130,246,.5);animation:glowRing 4s ease infinite}}
+.hero-name{{
   font-size:2.2rem;font-weight:700;letter-spacing:-.04em;line-height:1;
-  background:linear-gradient(135deg,#fff 30%,var(--blue2),var(--cyan));
+  background:linear-gradient(135deg,var(--bright) 30%,var(--blue2),var(--cyan));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  animation:neonPulse 4s ease infinite}
-.hero-tagline{
+  animation:neonPulse 4s ease infinite}}
+.hero-tagline{{
   font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--dim);
-  letter-spacing:.22em;text-transform:uppercase;margin-top:5px}
-.hero-badges{display:flex;gap:.5rem;margin-top:8px}
-.hbadge{
+  letter-spacing:.22em;text-transform:uppercase;margin-top:5px}}
+.hero-badges{{display:flex;gap:.5rem;margin-top:8px}}
+.hbadge{{
   font-family:'JetBrains Mono',monospace;font-size:.58rem;
-  padding:2px 8px;border-radius:100px;letter-spacing:.08em;text-transform:uppercase}
-.hb-blue{background:rgba(59,130,246,.12);color:var(--blue2);border:1px solid rgba(59,130,246,.25)}
-.hb-green{background:rgba(16,185,129,.12);color:var(--green2);border:1px solid rgba(16,185,129,.25)}
-.hb-purple{background:rgba(139,92,246,.12);color:#a78bfa;border:1px solid rgba(139,92,246,.25)}
-.hb-orange{background:rgba(249,115,22,.12);color:#fb923c;border:1px solid rgba(249,115,22,.25)}
-.hero-right{display:flex;align-items:center;gap:.7rem}
-.live-badge{
+  padding:2px 8px;border-radius:100px;letter-spacing:.08em;text-transform:uppercase}}
+.hb-blue{{background:rgba(59,130,246,.12);color:var(--blue2);border:1px solid rgba(59,130,246,.25)}}
+.hb-green{{background:rgba(16,185,129,.12);color:var(--green2);border:1px solid rgba(16,185,129,.25)}}
+.hb-purple{{background:rgba(139,92,246,.12);color:#a78bfa;border:1px solid rgba(139,92,246,.25)}}
+.hb-orange{{background:rgba(249,115,22,.12);color:#fb923c;border:1px solid rgba(249,115,22,.25)}}
+.hero-right{{display:flex;align-items:center;gap:.7rem}}
+.live-badge{{
   display:flex;align-items:center;gap:7px;
   background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);
   padding:7px 16px;border-radius:100px;
   font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--green2);
-  animation:fadeIn 1.2s ease .5s both}
-.pulse-dot{
+  animation:fadeIn 1.2s ease .5s both}}
+.pulse-dot{{
   width:8px;height:8px;border-radius:50%;background:var(--green2);
-  box-shadow:0 0 10px var(--green);animation:pulseDot 2s infinite}
-.time-badge{
+  box-shadow:0 0 10px var(--green);animation:pulseDot 2s infinite}}
+.time-badge{{
   font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--dim);
   background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:7px 14px;
-  position:relative;overflow:hidden}
-.time-badge::after{
+  position:relative;overflow:hidden}}
+.time-badge::after{{
   content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.04),transparent);
-  animation:shimmer 3s infinite 2s}
+  animation:shimmer 3s infinite 2s}}
+
+/* ── THEME TOGGLE ── */
+.theme-toggle{{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surf);border:1px solid var(--border);border-radius:100px;
+  padding:5px 12px;cursor:pointer;font-family:'JetBrains Mono',monospace;
+  font-size:.68rem;color:var(--text2);transition:all .2s;
+  user-select:none}}
+.theme-toggle:hover{{border-color:var(--blue);color:var(--blue2)}}
 
 /* ── SCAN LINE EFFECT on hero ── */
-.hero-wrap::before{
+.hero-wrap::before{{
   content:'';position:absolute;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(59,130,246,.6),transparent);
-  animation:scanLine 6s linear infinite;z-index:1}
+  animation:scanLine 6s linear infinite;z-index:1}}
 
 /* ── SIDEBAR ── */
-[data-testid="stSidebar"]{background:var(--bg2)!important;border-right:1px solid var(--border)!important}
-[data-testid="stSidebar"] .block-container{padding:1.2rem .8rem!important}
-.sb-sec{
+[data-testid="stSidebar"]{{background:var(--bg2)!important;border-right:1px solid var(--border)!important}}
+[data-testid="stSidebar"] .block-container{{padding:1.2rem .8rem!important}}
+.sb-sec{{
   font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--dim);
   letter-spacing:.22em;text-transform:uppercase;margin:1.2rem 0 .6rem;
-  padding-bottom:5px;border-bottom:1px solid var(--border)}
-.sb-host{font-family:'JetBrains Mono',monospace;font-size:.73rem;line-height:2.2;color:var(--text2)}
-.sb-host span{color:var(--bright)}
-.rbar-wrap{margin-bottom:12px}
-.rbar-lbl{
+  padding-bottom:5px;border-bottom:1px solid var(--border)}}
+.sb-host{{font-family:'JetBrains Mono',monospace;font-size:.73rem;line-height:2.2;color:var(--text2)}}
+.sb-host span{{color:var(--bright)}}
+.rbar-wrap{{margin-bottom:12px}}
+.rbar-lbl{{
   font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text2);
-  display:flex;justify-content:space-between;margin-bottom:5px}
-.rbar-track{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
-.rbar-fill{height:100%;border-radius:2px;animation:barGrow 1.2s cubic-bezier(.22,1,.36,1) both}
-.rbar-cpu {background:linear-gradient(90deg,var(--blue),var(--cyan))}
-.rbar-ram {background:linear-gradient(90deg,var(--green),var(--cyan))}
-.rbar-disk{background:linear-gradient(90deg,var(--purple),var(--pink))}
-.rbar-net {background:linear-gradient(90deg,var(--orange),var(--amber))}
+  display:flex;justify-content:space-between;margin-bottom:5px}}
+.rbar-track{{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}}
+.rbar-fill{{height:100%;border-radius:2px;animation:barGrow 1.2s cubic-bezier(.22,1,.36,1) both}}
+.rbar-cpu {{background:linear-gradient(90deg,var(--blue),var(--cyan))}}
+.rbar-ram {{background:linear-gradient(90deg,var(--green),var(--cyan))}}
+.rbar-disk{{background:linear-gradient(90deg,var(--purple),var(--pink))}}
+.rbar-net {{background:linear-gradient(90deg,var(--orange),var(--amber))}}
 
 /* ── CARDS ── */
-.card{
+.card{{
   background:linear-gradient(145deg,var(--surf),var(--surf2));
   border:1px solid var(--border);border-radius:16px;
   padding:1.3rem 1.5rem;margin-bottom:1rem;
   position:relative;overflow:hidden;
   transition:border-color .3s,box-shadow .3s,transform .25s;
-  animation:scaleIn .5s cubic-bezier(.22,1,.36,1) both}
-.card:hover{
+  animation:scaleIn .5s cubic-bezier(.22,1,.36,1) both}}
+.card:hover{{
   border-color:rgba(59,130,246,.4);
   box-shadow:0 12px 40px rgba(59,130,246,.15),0 0 0 1px rgba(59,130,246,.08) inset;
-  transform:translateY(-3px)}
-.card-gb::after{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 70% 90% at 0% 0%,rgba(59,130,246,.09),transparent);pointer-events:none}
-.card-gg::after{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 70% 90% at 0% 0%,rgba(16,185,129,.08),transparent);pointer-events:none}
-.card-gp::after{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 70% 90% at 0% 0%,rgba(139,92,246,.08),transparent);pointer-events:none}
-.card-ga::after{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 70% 90% at 0% 0%,rgba(245,158,11,.07),transparent);pointer-events:none}
-.ctbar{position:absolute;top:0;left:0;right:0;height:2px;border-radius:16px 16px 0 0}
-.tb-blue  {background:linear-gradient(90deg,var(--blue),var(--cyan),transparent)}
-.tb-green {background:linear-gradient(90deg,var(--green),var(--cyan),transparent)}
-.tb-purple{background:linear-gradient(90deg,var(--purple),var(--pink),transparent)}
-.tb-amber {background:linear-gradient(90deg,var(--amber),var(--orange),transparent)}
-.tb-red   {background:linear-gradient(90deg,var(--red),var(--pink),transparent)}
-.clabel{
+  transform:translateY(-3px)}}
+.card-gb::after{{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 90% at 0% 0%,rgba(59,130,246,.09),transparent);pointer-events:none}}
+.card-gg::after{{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 90% at 0% 0%,rgba(16,185,129,.08),transparent);pointer-events:none}}
+.card-gp::after{{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 90% at 0% 0%,rgba(139,92,246,.08),transparent);pointer-events:none}}
+.card-ga::after{{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 90% at 0% 0%,rgba(245,158,11,.07),transparent);pointer-events:none}}
+.ctbar{{position:absolute;top:0;left:0;right:0;height:2px;border-radius:16px 16px 0 0}}
+.tb-blue  {{background:linear-gradient(90deg,var(--blue),var(--cyan),transparent)}}
+.tb-green {{background:linear-gradient(90deg,var(--green),var(--cyan),transparent)}}
+.tb-purple{{background:linear-gradient(90deg,var(--purple),var(--pink),transparent)}}
+.tb-amber {{background:linear-gradient(90deg,var(--amber),var(--orange),transparent)}}
+.tb-red   {{background:linear-gradient(90deg,var(--red),var(--pink),transparent)}}
+.clabel{{
   font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--dim);
-  letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px}
-.cvalue{
+  letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px}}
+.cvalue{{
   font-family:'JetBrains Mono',monospace;font-size:.95rem;color:var(--bright);
-  font-weight:500;word-break:break-all;line-height:1.6}
-.cval-xl{
+  font-weight:500;word-break:break-all;line-height:1.6}}
+.cval-xl{{
   font-family:'JetBrains Mono',monospace;font-size:1.9rem;font-weight:700;
   background:linear-gradient(135deg,var(--blue2),var(--cyan));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2;
-  animation:countUp .7s cubic-bezier(.22,1,.36,1) both}
-.cval-green{
+  animation:countUp .7s cubic-bezier(.22,1,.36,1) both}}
+.cval-green{{
   font-family:'JetBrains Mono',monospace;font-size:1.9rem;font-weight:700;
   background:linear-gradient(135deg,var(--green2),var(--cyan));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  animation:countUp .7s ease both}
-.cval-purple{
+  animation:countUp .7s ease both}}
+.cval-purple{{
   font-family:'JetBrains Mono',monospace;font-size:1.9rem;font-weight:700;
   background:linear-gradient(135deg,#a78bfa,var(--pink));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  animation:countUp .7s ease both}
+  animation:countUp .7s ease both}}
 
 /* ── TILES ── */
-.tile{
+.tile{{
   background:linear-gradient(145deg,var(--surf),var(--surf2));
   border:1px solid var(--border);border-radius:14px;
   padding:1.2rem 1rem;text-align:center;
   transition:all .25s;animation:fadeUp .6s cubic-bezier(.22,1,.36,1) both;
-  position:relative;overflow:hidden}
-.tile::before{
+  position:relative;overflow:hidden}}
+.tile::before{{
   content:'';position:absolute;bottom:0;left:0;right:0;height:70%;
   background:radial-gradient(ellipse 80% 100% at 50% 100%,rgba(59,130,246,.06),transparent);
-  pointer-events:none}
-.tile:hover{
+  pointer-events:none}}
+.tile:hover{{
   transform:translateY(-4px);
   box-shadow:0 16px 40px rgba(59,130,246,.18);
-  border-color:rgba(59,130,246,.35)}
-.tile-val{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;animation:countUp .6s ease both}
-.tile-lbl{font-size:.68rem;color:var(--dim);text-transform:uppercase;letter-spacing:.12em;margin-top:4px}
-.tile-sub{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text2);margin-top:3px}
+  border-color:rgba(59,130,246,.35)}}
+.tile-val{{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;animation:countUp .6s ease both}}
+.tile-lbl{{font-size:.68rem;color:var(--dim);text-transform:uppercase;letter-spacing:.12em;margin-top:4px}}
+.tile-sub{{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text2);margin-top:3px}}
 
 /* ── SECTION HEADS ── */
-.sec{
+.sec{{
   display:flex;align-items:center;gap:.9rem;margin:2.2rem 0 1.1rem;
-  animation:fadeIn .6s ease both}
-.sec-icon{font-size:1rem}
-.sec-txt{
+  animation:fadeIn .6s ease both}}
+.sec-icon{{font-size:1rem}}
+.sec-txt{{
   font-family:'JetBrains Mono',monospace;font-size:.63rem;color:var(--text2);
-  letter-spacing:.22em;text-transform:uppercase;white-space:nowrap}
-.sec-line{flex:1;height:1px;background:linear-gradient(90deg,rgba(59,130,246,.3),transparent)}
-.sec-count{
+  letter-spacing:.22em;text-transform:uppercase;white-space:nowrap}}
+.sec-line{{flex:1;height:1px;background:linear-gradient(90deg,rgba(59,130,246,.3),transparent)}}
+.sec-count{{
   font-family:'JetBrains Mono',monospace;font-size:.6rem;
   background:rgba(59,130,246,.1);color:var(--blue2);
   border:1px solid rgba(59,130,246,.2);border-radius:100px;
-  padding:2px 9px;animation:popIn .5s ease both}
+  padding:2px 9px;animation:popIn .5s ease both}}
 
 /* ── TABLES ── */
-.wifi-wrap{
+.wifi-wrap{{
   background:var(--surf);border:1px solid var(--border);border-radius:16px;
   overflow:hidden;animation:fadeUp .6s ease both;
-  box-shadow:0 4px 24px rgba(0,0,0,.3)}
-.wtable{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.78rem}
-.wtable th{
+  box-shadow:0 4px 24px rgba(0,0,0,.3)}}
+.wtable{{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.78rem}}
+.wtable th{{
   background:rgba(59,130,246,.06);color:var(--dim);font-size:.6rem;
   letter-spacing:.18em;text-transform:uppercase;padding:.8rem 1.1rem;
-  text-align:left;border-bottom:1px solid var(--border)}
-.wtable td{
+  text-align:left;border-bottom:1px solid var(--border)}}
+.wtable td{{
   padding:.75rem 1.1rem;border-bottom:1px solid rgba(24,44,78,.6);
-  color:var(--text);vertical-align:middle}
-.wtable tr:last-child td{border-bottom:none}
-.wtable tr{animation:slideIn .35s ease both}
-.wtable tr:hover td{background:rgba(59,130,246,.05);transition:background .15s}
-.sbar-wrap{display:flex;align-items:center;gap:9px}
-.sbar-track{width:76px;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
-.sbar-fill{height:100%;border-radius:3px;animation:barGrow .8s cubic-bezier(.22,1,.36,1) both}
+  color:var(--text);vertical-align:middle}}
+.wtable tr:last-child td{{border-bottom:none}}
+.wtable tr{{animation:slideIn .35s ease both}}
+.wtable tr:hover td{{background:rgba(59,130,246,.05);transition:background .15s}}
+.sbar-wrap{{display:flex;align-items:center;gap:9px}}
+.sbar-track{{width:76px;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}}
+.sbar-fill{{height:100%;border-radius:3px;animation:barGrow .8s cubic-bezier(.22,1,.36,1) both}}
 
 /* ── BADGES ── */
-.badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:.6rem;font-weight:600;letter-spacing:.05em}
-.b-green {background:rgba(16,185,129,.12);color:var(--green2);border:1px solid rgba(16,185,129,.25)}
-.b-red   {background:rgba(239,68,68,.12); color:#f87171;      border:1px solid rgba(239,68,68,.25)}
-.b-blue  {background:rgba(59,130,246,.12);color:var(--blue2); border:1px solid rgba(59,130,246,.25)}
-.b-amber {background:rgba(245,158,11,.12);color:#fbbf24;      border:1px solid rgba(245,158,11,.25)}
-.b-purple{background:rgba(139,92,246,.12);color:#a78bfa;      border:1px solid rgba(139,92,246,.25)}
-.b-gray  {background:rgba(71,85,105,.12); color:var(--dim);   border:1px solid rgba(71,85,105,.25)}
-.b-cyan  {background:rgba(6,182,212,.12); color:#67e8f9;      border:1px solid rgba(6,182,212,.25)}
-.b-orange{background:rgba(249,115,22,.12);color:#fb923c;      border:1px solid rgba(249,115,22,.25)}
+.badge{{display:inline-block;padding:3px 10px;border-radius:100px;font-size:.6rem;font-weight:600;letter-spacing:.05em}}
+.b-green {{background:rgba(16,185,129,.12);color:var(--green2);border:1px solid rgba(16,185,129,.25)}}
+.b-red   {{background:rgba(239,68,68,.12); color:#f87171;      border:1px solid rgba(239,68,68,.25)}}
+.b-blue  {{background:rgba(59,130,246,.12);color:var(--blue2); border:1px solid rgba(59,130,246,.25)}}
+.b-amber {{background:rgba(245,158,11,.12);color:#fbbf24;      border:1px solid rgba(245,158,11,.25)}}
+.b-purple{{background:rgba(139,92,246,.12);color:#a78bfa;      border:1px solid rgba(139,92,246,.25)}}
+.b-gray  {{background:rgba(71,85,105,.12); color:var(--dim);   border:1px solid rgba(71,85,105,.25)}}
+.b-cyan  {{background:rgba(6,182,212,.12); color:#67e8f9;      border:1px solid rgba(6,182,212,.25)}}
+.b-orange{{background:rgba(249,115,22,.12);color:#fb923c;      border:1px solid rgba(249,115,22,.25)}}
 
 /* ── TERMINAL ── */
-.term-wrap{
+.term-wrap{{
   background:#010507;border:1px solid var(--border);border-radius:14px;
   overflow:hidden;animation:fadeUp .6s ease both;
-  box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px rgba(59,130,246,.05) inset}
-.term-bar{
+  box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px rgba(59,130,246,.05) inset}}
+.term-bar{{
   background:var(--bg3);border-bottom:1px solid var(--border);
   padding:.6rem 1.1rem;display:flex;align-items:center;gap:7px;
-  position:relative;overflow:hidden}
-.term-bar::after{
+  position:relative;overflow:hidden}}
+.term-bar::after{{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(59,130,246,.3),transparent)}
-.tdot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
-.term-title{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--dim);margin-left:.6rem}
-.term-body{
+  background:linear-gradient(90deg,transparent,rgba(59,130,246,.3),transparent)}}
+.tdot{{width:11px;height:11px;border-radius:50%;flex-shrink:0}}
+.term-title{{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--dim);margin-left:.6rem}}
+.term-body{{
   padding:1.1rem 1.3rem;font-family:'JetBrains Mono',monospace;font-size:.77rem;
   color:#6ee7b7;white-space:pre-wrap;max-height:360px;overflow-y:auto;line-height:1.85;
-  background:linear-gradient(180deg,#010507,#020a0e)}
-.term-cursor{display:inline-block;width:8px;height:14px;background:var(--cyan);
-  vertical-align:middle;animation:pulseDot .9s infinite;margin-left:2px}
+  background:linear-gradient(180deg,#010507,#020a0e)}}
+.term-cursor{{display:inline-block;width:8px;height:14px;background:var(--cyan);
+  vertical-align:middle;animation:pulseDot .9s infinite;margin-left:2px}}
 
 /* ── IP HERO ── */
-.ip-hero{
+.ip-hero{{
   background:linear-gradient(135deg,var(--surf),var(--surf2),rgba(11,23,48,1));
   border:1px solid var(--border);border-radius:20px;padding:2rem 2.2rem;
   margin-bottom:1.4rem;position:relative;overflow:hidden;
   animation:scaleIn .6s cubic-bezier(.22,1,.36,1) both;
-  box-shadow:0 8px 40px rgba(0,0,0,.4)}
-.ip-hero::before{
+  box-shadow:0 8px 40px rgba(0,0,0,.4)}}
+.ip-hero::before{{
   content:'';position:absolute;top:-80px;right:-80px;width:280px;height:280px;
   border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.14),transparent);
-  pointer-events:none}
-.ip-hero::after{
+  pointer-events:none}}
+.ip-hero::after{{
   content:'';position:absolute;bottom:-50px;left:-50px;width:200px;height:200px;
   border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.09),transparent);
-  pointer-events:none}
-.ip-scan-line{
+  pointer-events:none}}
+.ip-scan-line{{
   position:absolute;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(59,130,246,.8),transparent);
-  animation:scanLine 4s linear infinite}
-.ip-main{
+  animation:scanLine 4s linear infinite}}
+.ip-main{{
   font-family:'JetBrains Mono',monospace;font-size:2.6rem;font-weight:700;
-  background:linear-gradient(135deg,#fff,var(--blue2),var(--cyan));
+  background:linear-gradient(135deg,var(--bright),var(--blue2),var(--cyan));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   letter-spacing:.02em;line-height:1.15;
-  animation:countUp .8s cubic-bezier(.22,1,.36,1) both}
-.ip-country-flag{
+  animation:countUp .8s cubic-bezier(.22,1,.36,1) both}}
+.ip-country-flag{{
   display:flex;align-items:center;gap:10px;margin-top:8px;
-  font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--text2)}
-.ip-map-link{
+  font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--text2)}}
+.ip-map-link{{
   font-family:'JetBrains Mono',monospace;font-size:.68rem;
   color:var(--blue2);text-decoration:none;
   border:1px solid rgba(59,130,246,.25);border-radius:6px;
   padding:3px 10px;background:rgba(59,130,246,.07);
-  transition:all .2s;display:inline-block;margin-top:6px}
-.ip-map-link:hover{background:rgba(59,130,246,.15);border-color:var(--blue)}
+  transition:all .2s;display:inline-block;margin-top:6px}}
+.ip-map-link:hover{{background:rgba(59,130,246,.15);border-color:var(--blue)}}
 
 /* ── INFO ROWS ── */
-.info-grid{
+.info-grid{{
   background:var(--surf);border:1px solid var(--border);border-radius:14px;
-  overflow:hidden;animation:fadeUp .5s ease both}
-.info-row{
+  overflow:hidden;animation:fadeUp .5s ease both}}
+.info-row{{
   display:flex;align-items:center;padding:.65rem 1.2rem;
   border-bottom:1px solid rgba(24,44,78,.5);
   font-family:'JetBrains Mono',monospace;font-size:.78rem;
-  animation:slideIn .4s ease both;transition:background .15s}
-.info-row:last-child{border-bottom:none}
-.info-row:hover{background:rgba(59,130,246,.04)}
-.info-icon{width:22px;flex-shrink:0;font-size:.85rem;margin-right:.5rem}
-.info-key{color:var(--dim);width:140px;flex-shrink:0;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase}
-.info-val{color:var(--bright);flex:1}
-.info-copy{
+  animation:slideIn .4s ease both;transition:background .15s}}
+.info-row:last-child{{border-bottom:none}}
+.info-row:hover{{background:rgba(59,130,246,.04)}}
+.info-icon{{width:22px;flex-shrink:0;font-size:.85rem;margin-right:.5rem}}
+.info-key{{color:var(--dim);width:140px;flex-shrink:0;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase}}
+.info-val{{color:var(--bright);flex:1}}
+.info-copy{{
   font-size:.58rem;color:var(--dim);background:rgba(59,130,246,.08);
   border:1px solid rgba(59,130,246,.15);border-radius:4px;padding:1px 6px;
-  cursor:pointer;transition:all .2s;margin-left:auto;flex-shrink:0}
-.info-copy:hover{color:var(--blue2);border-color:var(--blue)}
+  cursor:pointer;transition:all .2s;margin-left:auto;flex-shrink:0}}
+.info-copy:hover{{color:var(--blue2);border-color:var(--blue)}}
 
 /* ── MAP ── */
-.map-wrap{
+.map-wrap{{
   border-radius:16px;overflow:hidden;border:1px solid var(--border);
   box-shadow:0 12px 40px rgba(59,130,246,.12);animation:fadeIn .8s ease both;
-  position:relative}
-.map-wrap iframe{display:block;filter:brightness(.5) saturate(.4) hue-rotate(180deg) contrast(1.15)}
-.map-overlay{
+  position:relative}}
+.map-wrap iframe{{display:block;filter:brightness(.5) saturate(.4) hue-rotate(180deg) contrast(1.15)}}
+.map-overlay{{
   position:absolute;bottom:14px;left:14px;background:rgba(2,8,16,.9);
   backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:9px;
-  padding:7px 14px;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text2)}
-.map-pin{
+  padding:7px 14px;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text2)}}
+.map-pin{{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   width:16px;height:16px;border-radius:50%;
   background:var(--blue);box-shadow:0 0 0 4px rgba(59,130,246,.3),0 0 20px rgba(59,130,246,.6);
-  animation:pulseDot 2s infinite}
+  animation:pulseDot 2s infinite}}
 
 /* ── WHOIS ── */
-.whois-wrap{background:var(--surf);border:1px solid var(--border);border-radius:14px;overflow:hidden}
-.whois-row{
+.whois-wrap{{background:var(--surf);border:1px solid var(--border);border-radius:14px;overflow:hidden}}
+.whois-row{{
   display:flex;padding:.55rem 1.1rem;border-bottom:1px solid rgba(24,44,78,.5);
   font-family:'JetBrains Mono',monospace;font-size:.75rem;
-  animation:fadeIn .3s ease both;transition:background .15s}
-.whois-row:last-child{border-bottom:none}
-.whois-row:hover{background:rgba(59,130,246,.04)}
-.whois-key{color:var(--blue2);width:220px;flex-shrink:0;font-size:.7rem}
-.whois-val{color:var(--text)}
+  animation:fadeIn .3s ease both;transition:background .15s}}
+.whois-row:last-child{{border-bottom:none}}
+.whois-row:hover{{background:rgba(59,130,246,.04)}}
+.whois-key{{color:var(--blue2);width:220px;flex-shrink:0;font-size:.7rem}}
+.whois-val{{color:var(--text)}}
 
 /* ── THREAT PANEL ── */
-.threat-panel{
+.threat-panel{{
   background:linear-gradient(135deg,rgba(239,68,68,.06),rgba(249,115,22,.04));
   border:1px solid rgba(239,68,68,.2);border-radius:14px;padding:1.2rem 1.5rem;
-  margin:1rem 0;animation:scaleIn .5s ease both}
-.threat-item{
+  margin:1rem 0;animation:scaleIn .5s ease both}}
+.threat-item{{
   display:flex;align-items:center;gap:.8rem;padding:.5rem 0;
-  border-bottom:1px solid rgba(239,68,68,.1);font-family:'JetBrains Mono',monospace;font-size:.78rem}
-.threat-item:last-child{border-bottom:none}
-.threat-icon{font-size:1.1rem;flex-shrink:0}
-.threat-label{color:var(--text2);flex:1}
-.threat-status-ok{color:var(--green2)}
-.threat-status-bad{color:#f87171}
+  border-bottom:1px solid rgba(239,68,68,.1);font-family:'JetBrains Mono',monospace;font-size:.78rem}}
+.threat-item:last-child{{border-bottom:none}}
+.threat-icon{{font-size:1.1rem;flex-shrink:0}}
+.threat-label{{color:var(--text2);flex:1}}
+.threat-status-ok{{color:var(--green2)}}
+.threat-status-bad{{color:#f87171}}
 
 /* ── GAUGE ── */
-.gauge-val{
+.gauge-val{{
   font-family:'JetBrains Mono',monospace;font-size:3.2rem;font-weight:700;
   background:linear-gradient(135deg,var(--green2),var(--cyan));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  animation:countUp .9s cubic-bezier(.22,1,.36,1) both}
-.gauge-unit{font-family:'JetBrains Mono',monospace;font-size:.88rem;color:var(--dim)}
+  animation:countUp .9s cubic-bezier(.22,1,.36,1) both}}
+.gauge-unit{{font-family:'JetBrains Mono',monospace;font-size:.88rem;color:var(--dim)}}
 
 /* ── SPEED METER ── */
-.speed-ring{
+.speed-ring{{
   width:140px;height:140px;border-radius:50%;
   background:conic-gradient(var(--green) 0%,var(--cyan) 60%,var(--bg3) 60%);
   display:flex;align-items:center;justify-content:center;
   position:relative;margin:0 auto;
-  box-shadow:0 0 30px rgba(16,185,129,.3)}
-.speed-ring-inner{
+  box-shadow:0 0 30px rgba(16,185,129,.3)}}
+.speed-ring-inner{{
   width:110px;height:110px;border-radius:50%;
   background:var(--surf);display:flex;flex-direction:column;
-  align-items:center;justify-content:center}
+  align-items:center;justify-content:center}}
 
 /* ── PROGRESS ── */
-.stProgress > div > div{background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.stProgress > div > div{{background:linear-gradient(90deg,var(--blue),var(--cyan))}}
 
 /* ── TABS ── */
-.stTabs [data-baseweb="tab-list"]{
+.stTabs [data-baseweb="tab-list"]{{
   background:transparent!important;
-  border-bottom:1px solid var(--border)!important;gap:0!important}
-.stTabs [data-baseweb="tab"]{
+  border-bottom:1px solid var(--border)!important;gap:0!important}}
+.stTabs [data-baseweb="tab"]{{
   font-family:'Space Grotesk',sans-serif!important;font-size:.82rem!important;
   font-weight:600!important;color:var(--dim)!important;background:transparent!important;
   border:none!important;padding:.75rem 1.2rem!important;letter-spacing:.02em!important;
-  transition:color .2s!important;position:relative!important}
-.stTabs [aria-selected="true"]{color:var(--bright)!important;border-bottom:2px solid var(--blue)!important}
-.stTabs [aria-selected="true"]::after{
+  transition:color .2s!important;position:relative!important}}
+.stTabs [aria-selected="true"]{{color:var(--bright)!important;border-bottom:2px solid var(--blue)!important}}
+.stTabs [aria-selected="true"]::after{{
   content:'';position:absolute;bottom:0;left:20%;right:20%;height:1px;
-  background:var(--cyan);filter:blur(3px)}
-.stTabs [data-baseweb="tab"]:hover{color:var(--text)!important}
+  background:var(--cyan);filter:blur(3px)}}
+.stTabs [data-baseweb="tab"]:hover{{color:var(--text)!important}}
 
 /* ── BUTTONS ── */
-.stButton>button{
+.stButton>button{{
   background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(139,92,246,.08))!important;
   border:1px solid rgba(59,130,246,.28)!important;color:var(--blue2)!important;
   font-family:'JetBrains Mono',monospace!important;font-size:.77rem!important;
   letter-spacing:.05em!important;border-radius:10px!important;
-  transition:all .2s!important;position:relative!important;overflow:hidden!important}
-.stButton>button::after{
+  transition:all .2s!important;position:relative!important;overflow:hidden!important}}
+.stButton>button::after{{
   content:'';position:absolute;inset:0;
   background:linear-gradient(135deg,rgba(59,130,246,.0),rgba(59,130,246,.12));
-  opacity:0;transition:opacity .2s}
-.stButton>button:hover{
+  opacity:0;transition:opacity .2s}}
+.stButton>button:hover{{
   background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(139,92,246,.15))!important;
   border-color:var(--blue)!important;
   box-shadow:0 0 24px rgba(59,130,246,.3),0 0 8px rgba(59,130,246,.1) inset!important;
-  transform:translateY(-2px)!important}
-.stButton>button:active{transform:translateY(0)!important}
+  transform:translateY(-2px)!important}}
+.stButton>button:active{{transform:translateY(0)!important}}
 
 /* ── INPUTS ── */
-.stTextInput input,.stSelectbox>div>div,.stTextArea textarea{
+.stTextInput input,.stSelectbox>div>div,.stTextArea textarea{{
   background:var(--surf)!important;border:1px solid var(--border)!important;
   border-radius:10px!important;color:var(--text)!important;
   font-family:'JetBrains Mono',monospace!important;font-size:.82rem!important;
-  transition:border-color .2s,box-shadow .2s!important}
-.stTextInput input:focus,.stTextArea textarea:focus{
+  transition:border-color .2s,box-shadow .2s!important}}
+.stTextInput input:focus,.stTextArea textarea:focus{{
   border-color:var(--blue)!important;
-  box-shadow:0 0 0 3px rgba(59,130,246,.15)!important}
-label{color:var(--text2)!important;font-size:.78rem!important}
+  box-shadow:0 0 0 3px rgba(59,130,246,.15)!important}}
+label{{color:var(--text2)!important;font-size:.78rem!important}}
 
 /* ── INFO BOX ── */
-.info-box{
+.info-box{{
   border-radius:10px;padding:.7rem 1rem;margin-bottom:1rem;
   font-family:'JetBrains Mono',monospace;font-size:.73rem;
-  animation:fadeIn .5s ease both}
-.info-box-blue{
-  background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);color:var(--blue2)}
-.info-box-red{
-  background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);color:#f87171}
-.info-box-green{
-  background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);color:var(--green2)}
-.info-box-amber{
-  background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fbbf24}
+  animation:fadeIn .5s ease both}}
+.info-box-blue{{
+  background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);color:var(--blue2)}}
+.info-box-red{{
+  background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);color:#f87171}}
+.info-box-green{{
+  background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);color:var(--green2)}}
+.info-box-amber{{
+  background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fbbf24}}
 
 /* ── STAGGER ── */
-.card:nth-child(1){animation-delay:.04s}.card:nth-child(2){animation-delay:.09s}
-.card:nth-child(3){animation-delay:.14s}.card:nth-child(4){animation-delay:.19s}
-.tile:nth-child(1){animation-delay:.05s}.tile:nth-child(2){animation-delay:.1s}
-.tile:nth-child(3){animation-delay:.15s}.tile:nth-child(4){animation-delay:.2s}
-.info-row:nth-child(odd) {animation-delay:.04s}
-.info-row:nth-child(even){animation-delay:.08s}
-.wtable tr:nth-child(1){animation-delay:.03s}.wtable tr:nth-child(2){animation-delay:.06s}
-.wtable tr:nth-child(3){animation-delay:.09s}.wtable tr:nth-child(4){animation-delay:.12s}
-.wtable tr:nth-child(5){animation-delay:.15s}.wtable tr:nth-child(6){animation-delay:.18s}
-.stAlert{background:var(--surf)!important;border:1px solid var(--border)!important;border-radius:11px!important}
+.card:nth-child(1){{animation-delay:.04s}}.card:nth-child(2){{animation-delay:.09s}}
+.card:nth-child(3){{animation-delay:.14s}}.card:nth-child(4){{animation-delay:.19s}}
+.tile:nth-child(1){{animation-delay:.05s}}.tile:nth-child(2){{animation-delay:.1s}}
+.tile:nth-child(3){{animation-delay:.15s}}.tile:nth-child(4){{animation-delay:.2s}}
+.info-row:nth-child(odd) {{animation-delay:.04s}}
+.info-row:nth-child(even){{animation-delay:.08s}}
+.wtable tr:nth-child(1){{animation-delay:.03s}}.wtable tr:nth-child(2){{animation-delay:.06s}}
+.wtable tr:nth-child(3){{animation-delay:.09s}}.wtable tr:nth-child(4){{animation-delay:.12s}}
+.wtable tr:nth-child(5){{animation-delay:.15s}}.wtable tr:nth-child(6){{animation-delay:.18s}}
+.stAlert{{background:var(--surf)!important;border:1px solid var(--border)!important;border-radius:11px!important}}
 
 /* ── Ping Gauge ── */
-.ping-gauge{
+.ping-gauge{{
   width:100%;height:8px;background:var(--bg3);border-radius:4px;
-  overflow:hidden;margin-top:6px}
-.ping-fill{height:100%;border-radius:4px;animation:barGrow 1s ease both}
+  overflow:hidden;margin-top:6px}}
+.ping-fill{{height:100%;border-radius:4px;animation:barGrow 1s ease both}}
 
 /* ── Network Sparkline ── */
-.sparkline-wrap{
+.sparkline-wrap{{
   background:var(--surf);border:1px solid var(--border);border-radius:14px;
-  padding:1.2rem 1.4rem;margin-bottom:1rem;animation:fadeUp .5s ease both}
-.sparkline-title{
+  padding:1.2rem 1.4rem;margin-bottom:1rem;animation:fadeUp .5s ease both}}
+.sparkline-title{{
   font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--dim);
-  letter-spacing:.18em;text-transform:uppercase;margin-bottom:.7rem}
+  letter-spacing:.18em;text-transform:uppercase;margin-bottom:.7rem}}
 
 /* ── Whois panel ── */
-.whois-panel{
+.whois-panel{{
   background:linear-gradient(135deg,var(--surf),var(--surf2));
   border:1px solid var(--border);border-radius:16px;overflow:hidden;
-  animation:fadeUp .6s ease both}
-.whois-header{
+  animation:fadeUp .6s ease both}}
+.whois-header{{
   background:rgba(59,130,246,.06);border-bottom:1px solid var(--border);
   padding:.8rem 1.2rem;font-family:'JetBrains Mono',monospace;
   font-size:.62rem;color:var(--dim);letter-spacing:.18em;text-transform:uppercase;
-  display:flex;align-items:center;justify-content:space-between}
+  display:flex;align-items:center;justify-content:space-between}}
 
 /* ── NEW: Latency histogram bars ── */
-.lat-bar-wrap{display:flex;align-items:flex-end;gap:3px;height:60px;padding:4px 0}
-.lat-bar{
+.lat-bar-wrap{{display:flex;align-items:flex-end;gap:3px;height:60px;padding:4px 0}}
+.lat-bar{{
   flex:1;border-radius:3px 3px 0 0;min-height:4px;
   background:linear-gradient(180deg,var(--blue),var(--cyan));
-  transition:opacity .2s}
-.lat-bar:hover{opacity:.7}
+  transition:opacity .2s}}
+.lat-bar:hover{{opacity:.7}}
 
 /* ── NEW: Export button ── */
-.export-btn{
+.export-btn{{
   font-family:'JetBrains Mono',monospace;font-size:.62rem;
   background:rgba(16,185,129,.08);color:var(--green2);
   border:1px solid rgba(16,185,129,.2);border-radius:7px;
-  padding:4px 12px;cursor:pointer;transition:all .2s;display:inline-block;text-decoration:none}
-.export-btn:hover{background:rgba(16,185,129,.15);border-color:var(--green)}
+  padding:4px 12px;cursor:pointer;transition:all .2s;display:inline-block;text-decoration:none}}
+.export-btn:hover{{background:rgba(16,185,129,.15);border-color:var(--green)}}
 
 /* ── NEW: Hostname result card ── */
-.host-card{
+.host-card{{
   background:linear-gradient(135deg,var(--surf),var(--surf2));
   border:1px solid var(--border);border-radius:14px;
   padding:1.1rem 1.4rem;margin-bottom:.6rem;
-  animation:fadeUp .4s ease both;transition:border-color .2s}
-.host-card:hover{border-color:rgba(59,130,246,.3)}
+  animation:fadeUp .4s ease both;transition:border-color .2s}}
+.host-card:hover{{border-color:rgba(59,130,246,.3)}}
 
 /* ── NEW: Anomaly alert ── */
-.anomaly-alert{
+.anomaly-alert{{
   background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(249,115,22,.06));
   border:1px solid rgba(239,68,68,.3);border-radius:12px;
   padding:1rem 1.3rem;margin-bottom:1rem;animation:scaleIn .4s ease both;
-  display:flex;align-items:center;gap:1rem}
-.anomaly-icon{font-size:1.4rem;flex-shrink:0}
-.anomaly-body{flex:1;font-family:'JetBrains Mono',monospace;font-size:.75rem}
-.anomaly-title{color:#f87171;font-weight:600;margin-bottom:3px}
-.anomaly-detail{color:var(--text2)}
+  display:flex;align-items:center;gap:1rem}}
+.anomaly-icon{{font-size:1.4rem;flex-shrink:0}}
+.anomaly-body{{flex:1;font-family:'JetBrains Mono',monospace;font-size:.75rem}}
+.anomaly-title{{color:#f87171;font-weight:600;margin-bottom:3px}}
+.anomaly-detail{{color:var(--text2)}}
 
 /* ── NEW: CPU core bars ── */
-.core-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;margin-top:8px}
-.core-item{text-align:center}
-.core-lbl{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--dim);margin-bottom:3px}
-.core-track{height:40px;width:100%;background:var(--bg3);border-radius:3px;
-  position:relative;overflow:hidden;display:flex;align-items:flex-end}
-.core-fill{width:100%;border-radius:3px;background:linear-gradient(180deg,var(--blue),var(--cyan));animation:barGrow .8s ease both}
-.core-pct{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--blue2);margin-top:3px}
+.core-grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;margin-top:8px}}
+.core-item{{text-align:center}}
+.core-lbl{{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--dim);margin-bottom:3px}}
+.core-track{{height:40px;width:100%;background:var(--bg3);border-radius:3px;
+  position:relative;overflow:hidden;display:flex;align-items:flex-end}}
+.core-fill{{width:100%;border-radius:3px;background:linear-gradient(180deg,var(--blue),var(--cyan));animation:barGrow .8s ease both}}
+.core-pct{{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--blue2);margin-top:3px}}
+
+/* ── NOTICE BOX for network-limited features ── */
+.net-notice{{
+  background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);
+  border-radius:10px;padding:.75rem 1rem;margin-bottom:.8rem;
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#fbbf24;
+  display:flex;align-items:center;gap:.6rem}}
 </style>
-""", unsafe_allow_html=True)
+"""
+
+dark = st.session_state.get("dark_mode", True)
+st.markdown(get_css(dark), unsafe_allow_html=True)
 
 # ════════════════════════════════════════════════════════════════════════════
 # SESSION STATE
@@ -641,143 +705,350 @@ def is_private(ip):
     try: return ipaddress.ip_address(ip).is_private
     except: return False
 
-# ── NEW: Anomaly detection ──────────────────────────────────────────────────
-def detect_network_anomalies(stats):
-    """Simple rule-based anomaly detection for network stats"""
-    anomalies = []
-    if stats.get("errin", 0) + stats.get("errout", 0) > 100:
-        anomalies.append(("High Error Rate", f"{stats['errin']+stats['errout']} total errors detected on interfaces"))
-    if stats.get("dropin", 0) + stats.get("dropout", 0) > 500:
-        anomalies.append(("Packet Loss Detected", f"{stats['dropin']+stats['dropout']} dropped packets"))
-    if stats.get("recv_ps", 0) > 100 * 1024 * 1024:
-        anomalies.append(("High Inbound Traffic", f"Receiving {fmt_bytes(stats['recv_ps'])}/s — possible flood or large transfer"))
-    if stats.get("sent_ps", 0) > 100 * 1024 * 1024:
-        anomalies.append(("High Outbound Traffic", f"Sending {fmt_bytes(stats['sent_ps'])}/s — check for data exfiltration"))
-    return anomalies
+# ════════════════════════════════════════════════════════════════════════════
+# FIXED: Pure-Python ping (TCP or ICMP raw socket — no external binary needed)
+# ════════════════════════════════════════════════════════════════════════════
+def _find_ping_binary():
+    """Search common paths for the ping binary."""
+    candidates = [
+        "/bin/ping", "/usr/bin/ping", "/sbin/ping", "/usr/sbin/ping",
+        "ping",  # PATH lookup as last resort
+    ]
+    import shutil
+    for c in candidates:
+        if c == "ping":
+            if shutil.which("ping"):
+                return "ping"
+        else:
+            import os
+            if os.path.isfile(c):
+                return c
+    return None
 
-# ── NEW: Hostname resolver ──────────────────────────────────────────────────
-def resolve_hostname(hostname):
-    """Resolve hostname to all IPs + reverse lookup"""
-    result = {"hostname": hostname, "ipv4": [], "ipv6": [], "fqdn": "", "aliases": [], "error": None}
-    try:
-        # Forward A records
-        try: result["ipv4"] = list(set(r[4][0] for r in socket.getaddrinfo(hostname, None, socket.AF_INET)))
-        except: pass
-        # Forward AAAA records
-        try: result["ipv6"] = list(set(r[4][0] for r in socket.getaddrinfo(hostname, None, socket.AF_INET6)))
-        except: pass
-        # FQDN
-        try: result["fqdn"] = socket.getfqdn(hostname)
-        except: pass
-        # Reverse PTR for each resolved IP
-        ptrs = []
-        for ip in result["ipv4"][:3]:
-            try: ptrs.append((ip, socket.gethostbyaddr(ip)[0]))
-            except: ptrs.append((ip, "—"))
-        result["ptr_map"] = ptrs
-        # Geo for first IP
-        if result["ipv4"]:
-            try:
-                r = requests.get(f"https://ipapi.co/{result['ipv4'][0]}/json/", timeout=6,
-                                  headers={"User-Agent": "NetPulse/4.0"})
-                j = r.json()
-                result["geo"] = {
-                    "org":     j.get("org","—"),
-                    "country": j.get("country_name","—"),
-                    "city":    j.get("city","—"),
-                    "asn":     j.get("asn","—"),
-                }
-            except: result["geo"] = {}
-    except Exception as e:
-        result["error"] = str(e)
-    return result
+_PING_BIN = _find_ping_binary()
 
-# ── NEW: Export helpers ─────────────────────────────────────────────────────
-def export_to_json(data, label="data"):
-    """Serialize data dict to JSON string for download"""
-    try:
-        return json.dumps(data, indent=2, default=str)
-    except:
-        return "{}"
-
-# ── Geolocation (improved dual-API with extended fields) ──
-def get_location(ip=""):
-    d = {}
-    # Primary: ipapi.co
-    try:
-        url = f"https://ipapi.co/{ip}/json/" if ip else "https://ipapi.co/json/"
-        r = requests.get(url, timeout=8, headers={"User-Agent": "NetPulse/4.0"})
-        j = r.json()
-        if "error" not in j and j.get("ip"):
-            d = {
-                "ip":           j.get("ip", ""),
-                "version":      j.get("version", "IPv4"),
-                "city":         j.get("city", ""),
-                "region":       j.get("region", ""),
-                "region_code":  j.get("region_code", ""),
-                "country":      j.get("country_name", ""),
-                "country_code": j.get("country_code", ""),
-                "continent":    j.get("continent_code", ""),
-                "postal":       j.get("postal", ""),
-                "lat":          j.get("latitude"),
-                "lon":          j.get("longitude"),
-                "tz":           j.get("timezone", ""),
-                "utc":          j.get("utc_offset", ""),
-                "org":          j.get("org", ""),
-                "asn":          j.get("asn", ""),
-                "currency":     j.get("currency", ""),
-                "currency_name":j.get("currency_name", ""),
-                "calling":      j.get("country_calling_code", ""),
-                "languages":    j.get("languages", ""),
-                "in_eu":        j.get("in_eu", False),
-                "source":       "ipapi.co",
-            }
-    except: pass
-
-    # Fallback: ip-api.com (richer threat fields)
-    if not d.get("ip"):
+def ping(host, count=4):
+    """
+    Ping a host. Uses the system ping binary if available, otherwise
+    falls back to a pure-Python TCP-based latency measurement.
+    """
+    if _PING_BIN:
+        flag = "-n" if platform.system() == "Windows" else "-c"
         try:
-            url2 = f"http://ip-api.com/json/{ip}?fields=66846719" if ip else "http://ip-api.com/json/?fields=66846719"
-            r2 = requests.get(url2, timeout=8)
-            j2 = r2.json()
-            if j2.get("status") == "success":
-                d = {
-                    "ip":           j2.get("query", ""),
-                    "version":      "IPv4",
-                    "city":         j2.get("city", ""),
-                    "region":       j2.get("regionName", ""),
-                    "region_code":  j2.get("region", ""),
-                    "country":      j2.get("country", ""),
-                    "country_code": j2.get("countryCode", ""),
-                    "continent":    j2.get("continent", ""),
-                    "postal":       j2.get("zip", ""),
-                    "lat":          j2.get("lat"),
-                    "lon":          j2.get("lon"),
-                    "tz":           j2.get("timezone", ""),
-                    "utc":          "",
-                    "org":          j2.get("isp", ""),
-                    "asn":          j2.get("as", ""),
-                    "currency": "", "currency_name": "", "calling": "", "languages": "",
-                    "mobile":   j2.get("mobile", False),
-                    "proxy":    j2.get("proxy", False),
-                    "hosting":  j2.get("hosting", False),
-                    "in_eu":    False,
-                    "source":   "ip-api.com",
-                }
+            r = subprocess.run([_PING_BIN, flag, str(count), host],
+                               capture_output=True, text=True, timeout=25)
+            return r.stdout + r.stderr
         except Exception as e:
-            return {"error": str(e)}
+            return f"Ping binary error: {e}\n" + _tcp_ping_report(host, count)
+    else:
+        return _tcp_ping_report(host, count)
 
-    # Enrich with extra fields
-    if d.get("ip"):
-        try: d["rdns"] = socket.gethostbyaddr(d["ip"])[0]
-        except: d["rdns"] = "—"
-        d["is_private"] = is_private(d["ip"])
+def _tcp_ping_report(host, count=4):
+    """
+    Fallback: measure TCP RTT to common ports and format output
+    in a ping-like style so the rest of the app can parse it normally.
+    """
+    ports_to_try = [80, 443, 53, 22, 8080]
+    try:
+        ip = socket.gethostbyname(host)
+    except Exception as e:
+        return f"ping: {host}: Name or service not known\n"
+
+    lines = [f"TCP-PING {host} ({ip}): {count} probes"]
+    times = []
+    for i in range(count):
+        rtt = None
+        for port in ports_to_try:
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.settimeout(3)
+                t0 = time.time()
+                s.connect((ip, port))
+                rtt = (time.time() - t0) * 1000
+                s.close()
+                break
+            except:
+                pass
+        if rtt is not None:
+            times.append(rtt)
+            lines.append(f"seq={i+1} ttl=64 time={rtt:.2f} ms  (port {port})")
+        else:
+            lines.append(f"seq={i+1} Request timeout")
+
+    if times:
+        mn, mx, avg = min(times), max(times), sum(times)/len(times)
+        lines.append(f"")
+        lines.append(f"--- {host} tcp-ping statistics ---")
+        lines.append(f"{count} packets transmitted, {len(times)} received, "
+                     f"{((count-len(times))/count*100):.0f}% packet loss")
+        lines.append(f"rtt min/avg/max = {mn:.3f}/{avg:.3f}/{mx:.3f} ms")
+    else:
+        lines.append(f"--- {host} tcp-ping statistics ---")
+        lines.append(f"{count} packets transmitted, 0 received, 100% packet loss")
+        lines.append("Host unreachable or all ports filtered.")
+
+    return "\n".join(lines)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# FIXED: Traceroute — binary search + Python socket fallback
+# ════════════════════════════════════════════════════════════════════════════
+def _find_traceroute_binary():
+    import shutil, os
+    if platform.system() == "Windows":
+        candidates = ["tracert"]
+    else:
+        candidates = ["/bin/traceroute", "/usr/bin/traceroute",
+                      "/sbin/traceroute", "traceroute"]
+    for c in candidates:
+        if c in ("tracert", "traceroute"):
+            if shutil.which(c):
+                return c
+        else:
+            if os.path.isfile(c):
+                return c
+    return None
+
+_TRACE_BIN = _find_traceroute_binary()
+
+def traceroute(host):
+    if _TRACE_BIN:
+        if platform.system() == "Windows":
+            cmd = [_TRACE_BIN, host]
+        else:
+            cmd = [_TRACE_BIN, "-n", "-m", "20", host]
         try:
-            addr = ipaddress.ip_address(d["ip"])
-            d["version"] = "IPv6" if isinstance(addr, ipaddress.IPv6Address) else "IPv4"
-        except: pass
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=45)
+            return r.stdout + r.stderr
+        except Exception as e:
+            return f"Traceroute binary error: {e}\n" + _tcp_traceroute(host)
+    else:
+        return _tcp_traceroute(host)
 
-    return d
+def _tcp_traceroute(host, max_hops=15):
+    """Pure-Python TCP traceroute using TTL on raw sockets (best-effort)."""
+    try:
+        dest_ip = socket.gethostbyname(host)
+    except Exception as e:
+        return f"traceroute: {host}: Name or service not known\n"
+
+    lines = [f"traceroute to {host} ({dest_ip}), {max_hops} hops max (TCP/socket probe)"]
+
+    for ttl in range(1, max_hops + 1):
+        rtt = None
+        hop_ip = "*"
+        try:
+            recv_sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
+            recv_sock.settimeout(2)
+        except:
+            recv_sock = None
+
+        try:
+            send_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            send_sock.setsockopt(socket.IPPROTO_IP, socket.IP_TTL, ttl)
+            send_sock.settimeout(2)
+            t0 = time.time()
+            try:
+                send_sock.connect((dest_ip, 80))
+            except socket.timeout:
+                pass
+            except OSError:
+                pass
+            rtt = (time.time() - t0) * 1000
+            send_sock.close()
+        except Exception:
+            pass
+
+        if recv_sock:
+            try:
+                data, addr = recv_sock.recvfrom(512)
+                hop_ip = addr[0]
+            except:
+                pass
+            recv_sock.close()
+
+        if hop_ip == "*" and rtt is not None:
+            hop_ip = dest_ip if ttl == max_hops else "*"
+
+        rtt_str = f"{rtt:.1f} ms" if rtt is not None else "* * *"
+        lines.append(f" {ttl:2d}  {hop_ip:<18}  {rtt_str}")
+
+        if hop_ip == dest_ip:
+            break
+
+    return "\n".join(lines)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# FIXED: Geolocation — multi-API with robust fallbacks + offline mode
+# ════════════════════════════════════════════════════════════════════════════
+_GEO_APIS = [
+    # (url_template, parser_fn_name)
+    ("https://ipapi.co/{ip}json/",      "ipapi_co"),
+    ("http://ip-api.com/json/{ip}?fields=66846719", "ipapi_com"),
+    ("https://ipwho.is/{ip}",           "ipwhois"),
+    ("https://freeipapi.com/api/json/{ip}", "freeipapi"),
+    ("https://ip.guide/{ip}",           "ipguide"),
+]
+
+def _parse_ipapi_co(j):
+    if j.get("error") or not j.get("ip"):
+        return None
+    return {
+        "ip": j.get("ip",""), "version": j.get("version","IPv4"),
+        "city": j.get("city",""), "region": j.get("region",""),
+        "region_code": j.get("region_code",""), "country": j.get("country_name",""),
+        "country_code": j.get("country_code",""), "continent": j.get("continent_code",""),
+        "postal": j.get("postal",""), "lat": j.get("latitude"),
+        "lon": j.get("longitude"), "tz": j.get("timezone",""),
+        "utc": j.get("utc_offset",""), "org": j.get("org",""),
+        "asn": j.get("asn",""), "currency": j.get("currency",""),
+        "currency_name": j.get("currency_name",""), "calling": j.get("country_calling_code",""),
+        "languages": j.get("languages",""), "in_eu": j.get("in_eu",False),
+        "source": "ipapi.co",
+    }
+
+def _parse_ipapi_com(j):
+    if j.get("status") != "success":
+        return None
+    return {
+        "ip": j.get("query",""), "version": "IPv4",
+        "city": j.get("city",""), "region": j.get("regionName",""),
+        "region_code": j.get("region",""), "country": j.get("country",""),
+        "country_code": j.get("countryCode",""), "continent": j.get("continent",""),
+        "postal": j.get("zip",""), "lat": j.get("lat"), "lon": j.get("lon"),
+        "tz": j.get("timezone",""), "utc": "", "org": j.get("isp",""),
+        "asn": j.get("as",""), "currency":"", "currency_name":"",
+        "calling":"", "languages":"",
+        "mobile": j.get("mobile",False), "proxy": j.get("proxy",False),
+        "hosting": j.get("hosting",False), "in_eu": False,
+        "source": "ip-api.com",
+    }
+
+def _parse_ipwhois(j):
+    if not j.get("success") and j.get("ip") is None:
+        return None
+    return {
+        "ip": j.get("ip",""), "version": "IPv4",
+        "city": j.get("city",""), "region": j.get("region",""),
+        "region_code": j.get("region_code",""), "country": j.get("country",""),
+        "country_code": j.get("country_code",""), "continent": j.get("continent",""),
+        "postal": j.get("postal",""), "lat": j.get("latitude"),
+        "lon": j.get("longitude"), "tz": j.get("timezone",{}).get("id","") if isinstance(j.get("timezone"),dict) else j.get("timezone",""),
+        "utc": "", "org": j.get("org",""), "asn": j.get("asn",""),
+        "currency":"", "currency_name":"", "calling":"",
+        "languages":"", "in_eu": False, "source": "ipwho.is",
+    }
+
+def _parse_freeipapi(j):
+    if not j.get("ipAddress"):
+        return None
+    return {
+        "ip": j.get("ipAddress",""), "version": "IPv4",
+        "city": j.get("cityName",""), "region": j.get("regionName",""),
+        "region_code": j.get("regionCode",""), "country": j.get("countryName",""),
+        "country_code": j.get("countryCode",""), "continent": "",
+        "postal": j.get("zipCode",""), "lat": j.get("latitude"),
+        "lon": j.get("longitude"), "tz": j.get("timeZone",""),
+        "utc":"", "org":"", "asn":"",
+        "currency":"", "currency_name":"", "calling":"",
+        "languages":"", "in_eu":False, "source": "freeipapi.com",
+    }
+
+def _parse_ipguide(j):
+    loc = j.get("location", {})
+    net = j.get("network", {})
+    asn_info = j.get("autonomous_system", {})
+    if not j.get("ip"):
+        return None
+    return {
+        "ip": j.get("ip",""), "version": "IPv4",
+        "city": loc.get("city",""), "region": loc.get("state",""),
+        "region_code": "", "country": loc.get("country",""),
+        "country_code": loc.get("country_code",""), "continent": "",
+        "postal": loc.get("postal_code",""), "lat": loc.get("latitude"),
+        "lon": loc.get("longitude"), "tz": loc.get("timezone",""),
+        "utc":"", "org": asn_info.get("name",""), "asn": str(asn_info.get("asn","")),
+        "currency":"", "currency_name":"", "calling":"",
+        "languages":"", "in_eu":False, "source": "ip.guide",
+    }
+
+_PARSERS = {
+    "ipapi_co": _parse_ipapi_co,
+    "ipapi_com": _parse_ipapi_com,
+    "ipwhois": _parse_ipwhois,
+    "freeipapi": _parse_freeipapi,
+    "ipguide": _parse_ipguide,
+}
+
+def get_location(ip=""):
+    """Try multiple geo APIs and return the first successful result."""
+    errors = []
+    for url_tmpl, parser_key in _GEO_APIS:
+        ip_seg = ip if ip else ""
+        # Handle URL formatting per API
+        if "ipapi.co" in url_tmpl:
+            url = f"https://ipapi.co/{ip_seg + '/' if ip_seg else ''}json/"
+        elif "ip-api.com" in url_tmpl:
+            url = f"http://ip-api.com/json/{ip_seg}?fields=66846719"
+        elif "ipwho.is" in url_tmpl:
+            url = f"https://ipwho.is/{ip_seg}"
+        elif "freeipapi" in url_tmpl:
+            url = f"https://freeipapi.com/api/json/{ip_seg}"
+        elif "ip.guide" in url_tmpl:
+            url = f"https://ip.guide/{ip_seg}" if ip_seg else "https://ip.guide/me"
+        else:
+            url = url_tmpl.format(ip=ip_seg)
+
+        try:
+            r = requests.get(url, timeout=8,
+                             headers={"User-Agent": "NetPulse/4.0",
+                                      "Accept": "application/json"})
+            if r.status_code != 200:
+                errors.append(f"{url}: HTTP {r.status_code}")
+                continue
+            j = r.json()
+            d = _PARSERS[parser_key](j)
+            if d and d.get("ip"):
+                # Enrich
+                try: d["rdns"] = socket.gethostbyaddr(d["ip"])[0]
+                except: d["rdns"] = "—"
+                d["is_private"] = is_private(d["ip"])
+                try:
+                    addr = ipaddress.ip_address(d["ip"])
+                    d["version"] = "IPv6" if isinstance(addr, ipaddress.IPv6Address) else "IPv4"
+                except: pass
+                return d
+            else:
+                errors.append(f"{url}: parser returned empty")
+        except requests.exceptions.ConnectionError as e:
+            errors.append(f"{url}: Connection refused/blocked")
+        except Exception as e:
+            errors.append(f"{url}: {e}")
+
+    # All APIs failed — return offline info with local interface
+    local_ip = _get_local_ip()
+    return {
+        "error": "All geolocation APIs unreachable from this environment. "
+                 "This typically happens in sandboxed/restricted networks. "
+                 "Run this app on a machine with internet access.",
+        "ip": local_ip,
+        "is_private": True,
+        "version": "IPv4",
+        "_tried": errors,
+    }
+
+def _get_local_ip():
+    """Get best local IP address."""
+    try:
+        # Trick: connect to a non-routable IP to determine outbound interface IP
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("10.254.254.254", 1))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except:
+        return "127.0.0.1"
 
 def check_threat(ip):
     try:
@@ -880,21 +1151,6 @@ def scan_wifi():
         except: pass
     return sorted(nets, key=lambda x: x["signal"], reverse=True)
 
-def ping(host, count=4):
-    flag = "-n" if platform.system() == "Windows" else "-c"
-    try:
-        r = subprocess.run(["ping", flag, str(count), host],
-                           capture_output=True, text=True, timeout=25)
-        return r.stdout + r.stderr
-    except Exception as e: return f"Error: {e}"
-
-def traceroute(host):
-    cmd = ["tracert", host] if platform.system() == "Windows" else ["traceroute", "-n", "-m", "20", host]
-    try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=45)
-        return r.stdout + r.stderr
-    except Exception as e: return f"Error: {e}"
-
 def dns_lookup(host):
     out = {}
     try: out["A"]    = list(set(r[4][0] for r in socket.getaddrinfo(host, None, socket.AF_INET)))
@@ -995,15 +1251,52 @@ def speed_test():
 
 def get_arp():
     try:
-        cmd = ["arp", "-a"] if platform.system() == "Windows" else ["arp", "-n"]
+        if platform.system() == "Windows":
+            cmd = ["arp", "-a"]
+        else:
+            # Try multiple arp locations
+            import shutil, os
+            arp_bin = shutil.which("arp") or "/usr/sbin/arp" or "/sbin/arp"
+            if not arp_bin or not os.path.isfile(arp_bin):
+                # Fallback: read from /proc/net/arp on Linux
+                try:
+                    with open("/proc/net/arp") as f:
+                        return f.read()
+                except:
+                    pass
+                return "arp binary not found. On Linux, try: ip neigh show"
+            cmd = [arp_bin, "-n"]
         return subprocess.check_output(cmd, timeout=8, stderr=subprocess.DEVNULL).decode(errors="ignore")
-    except Exception as e: return f"Error: {e}"
+    except Exception as e:
+        # Try 'ip neigh' as fallback on Linux
+        try:
+            import shutil
+            ip_bin = shutil.which("ip")
+            if ip_bin:
+                return subprocess.check_output([ip_bin, "neigh", "show"],
+                    timeout=8, stderr=subprocess.DEVNULL).decode(errors="ignore")
+        except: pass
+        return f"Error: {e}"
 
 def get_routes():
     try:
-        if platform.system() == "Windows": cmd = ["route", "print"]
-        elif platform.system() == "Darwin": cmd = ["netstat", "-rn"]
-        else: cmd = ["ip", "route", "show"]
+        if platform.system() == "Windows":
+            cmd = ["route", "print"]
+        elif platform.system() == "Darwin":
+            cmd = ["netstat", "-rn"]
+        else:
+            # Try 'ip route' first, fallback to /proc/net/route
+            import shutil
+            ip_bin = shutil.which("ip")
+            if ip_bin:
+                cmd = [ip_bin, "route", "show"]
+            else:
+                try:
+                    with open("/proc/net/route") as f:
+                        return f.read()
+                except:
+                    pass
+                return "ip binary not found"
         return subprocess.check_output(cmd, timeout=8, stderr=subprocess.DEVNULL).decode(errors="ignore")
     except Exception as e: return f"Error: {e}"
 
@@ -1029,7 +1322,6 @@ def subnet_calc(cidr):
     except Exception as e: return {"error": str(e)}
 
 def ip_range_expand(start_ip, end_ip):
-    """Expand IP range to list"""
     try:
         start = int(ipaddress.IPv4Address(start_ip))
         end   = int(ipaddress.IPv4Address(end_ip))
@@ -1039,6 +1331,55 @@ def ip_range_expand(start_ip, end_ip):
         return [str(ipaddress.IPv4Address(i)) for i in range(start, end + 1)], None
     except Exception as e:
         return [], str(e)
+
+# ── Anomaly detection ──
+def detect_network_anomalies(stats):
+    anomalies = []
+    if stats.get("errin", 0) + stats.get("errout", 0) > 100:
+        anomalies.append(("High Error Rate", f"{stats['errin']+stats['errout']} total errors detected on interfaces"))
+    if stats.get("dropin", 0) + stats.get("dropout", 0) > 500:
+        anomalies.append(("Packet Loss Detected", f"{stats['dropin']+stats['dropout']} dropped packets"))
+    if stats.get("recv_ps", 0) > 100 * 1024 * 1024:
+        anomalies.append(("High Inbound Traffic", f"Receiving {fmt_bytes(stats['recv_ps'])}/s — possible flood or large transfer"))
+    if stats.get("sent_ps", 0) > 100 * 1024 * 1024:
+        anomalies.append(("High Outbound Traffic", f"Sending {fmt_bytes(stats['sent_ps'])}/s — check for data exfiltration"))
+    return anomalies
+
+def resolve_hostname(hostname):
+    result = {"hostname": hostname, "ipv4": [], "ipv6": [], "fqdn": "", "aliases": [], "error": None}
+    try:
+        try: result["ipv4"] = list(set(r[4][0] for r in socket.getaddrinfo(hostname, None, socket.AF_INET)))
+        except: pass
+        try: result["ipv6"] = list(set(r[4][0] for r in socket.getaddrinfo(hostname, None, socket.AF_INET6)))
+        except: pass
+        try: result["fqdn"] = socket.getfqdn(hostname)
+        except: pass
+        ptrs = []
+        for ip in result["ipv4"][:3]:
+            try: ptrs.append((ip, socket.gethostbyaddr(ip)[0]))
+            except: ptrs.append((ip, "—"))
+        result["ptr_map"] = ptrs
+        if result["ipv4"]:
+            try:
+                r = requests.get(f"https://ipapi.co/{result['ipv4'][0]}/json/", timeout=6,
+                                  headers={"User-Agent": "NetPulse/4.0"})
+                j = r.json()
+                result["geo"] = {
+                    "org":     j.get("org","—"),
+                    "country": j.get("country_name","—"),
+                    "city":    j.get("city","—"),
+                    "asn":     j.get("asn","—"),
+                }
+            except: result["geo"] = {}
+    except Exception as e:
+        result["error"] = str(e)
+    return result
+
+def export_to_json(data, label="data"):
+    try:
+        return json.dumps(data, indent=2, default=str)
+    except:
+        return "{}"
 
 # ════════════════════════════════════════════════════════════════════════════
 # SIDEBAR
@@ -1055,6 +1396,17 @@ with st.sidebar:
       <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:#475569;
            letter-spacing:.22em;text-transform:uppercase;margin-top:4px;">v4.0 · Intelligence</div>
     </div>""", unsafe_allow_html=True)
+
+    # ── THEME TOGGLE in sidebar ──
+    st.markdown('<div class="sb-sec">🎨 Appearance</div>', unsafe_allow_html=True)
+    current_dark = st.session_state.get("dark_mode", True)
+    toggle_label = "☀️ Switch to Light Mode" if current_dark else "🌙 Switch to Dark Mode"
+    if st.button(toggle_label, use_container_width=True, key="theme_btn"):
+        st.session_state["dark_mode"] = not current_dark
+        st.rerun()
+    mode_label = "🌑 Dark Mode Active" if current_dark else "☀️ Light Mode Active"
+    st.markdown(f'<div style="font-family:JetBrains Mono,monospace;font-size:.62rem;color:var(--dim);text-align:center;margin-top:4px">{mode_label}</div>', unsafe_allow_html=True)
+
     st.markdown("---")
     st.markdown('<div class="sb-sec">⬡ System Status</div>', unsafe_allow_html=True)
     try:
@@ -1088,11 +1440,10 @@ with st.sidebar:
           ↑ {fmt_bytes(net_io_sb.bytes_sent)} ↓ {fmt_bytes(net_io_sb.bytes_recv)}
         </div>""", unsafe_allow_html=True)
 
-        # NEW: Per-core CPU bars
         if cpu_per_core and len(cpu_per_core) > 1:
             st.markdown('<div class="sb-sec" style="margin-top:1rem">⬡ CPU Cores</div>', unsafe_allow_html=True)
             core_items = ""
-            for i, pct in enumerate(cpu_per_core[:8]):  # max 8 cores shown
+            for i, pct in enumerate(cpu_per_core[:8]):
                 col = "var(--green2)" if pct < 50 else "var(--amber)" if pct < 80 else "#f87171"
                 core_items += f"""
                 <div class="core-item">
@@ -1126,6 +1477,10 @@ with st.sidebar:
 # ════════════════════════════════════════════════════════════════════════════
 # HERO
 # ════════════════════════════════════════════════════════════════════════════
+dark_now = st.session_state.get("dark_mode", True)
+theme_icon = "☀️" if dark_now else "🌙"
+theme_label_short = "Light" if dark_now else "Dark"
+
 st.markdown(f"""
 <div class="hero-wrap">
   <div class="hero-logo">
@@ -1139,10 +1494,11 @@ st.markdown(f"""
       <div class="hero-name">NetPulse</div>
       <div class="hero-tagline">Advanced Network Intelligence Dashboard · v4.0</div>
       <div class="hero-badges">
-        <span class="hbadge hb-blue">Geo · Dual-API</span>
+        <span class="hbadge hb-blue">Geo · Multi-API</span>
         <span class="hbadge hb-green">SSL Inspector</span>
         <span class="hbadge hb-purple">IP Range Scan</span>
         <span class="hbadge hb-orange">Hostname Intel</span>
+        <span class="hbadge hb-green">{theme_icon} {theme_label_short} Mode</span>
       </div>
     </div>
   </div>
@@ -1169,7 +1525,7 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
 # TAB 1 — IP & LOCATION
 # ─────────────────────────────────────────────────────────────────────────────
 with tab1:
-    st.markdown('<div class="info-box info-box-blue">ℹ IP geolocation is ISP-level accurate. VPN/proxy exit nodes show their own location. Dual-API: ipapi.co → ip-api.com fallback.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="info-box info-box-blue">ℹ IP geolocation uses 5 APIs in sequence (ipapi.co → ip-api.com → ipwho.is → freeipapi.com → ip.guide). VPN/proxy exit nodes show their own location.</div>', unsafe_allow_html=True)
 
     ci, cb1, cb2, cb3 = st.columns([4, 1, 1, 1])
     with ci:
@@ -1185,7 +1541,7 @@ with tab1:
         st.rerun()
 
     if run_loc:
-        with st.spinner("Fetching geolocation data..."):
+        with st.spinner("Fetching geolocation data (trying multiple APIs)..."):
             d = get_location(custom_ip.strip())
         st.session_state["loc_data"] = d
 
@@ -1200,7 +1556,30 @@ with tab1:
 
     if d:
         if "error" in d:
-            st.error(f"Geolocation failed: {d['error']}")
+            # Show error with useful context
+            st.markdown(f"""
+            <div class="anomaly-alert">
+              <span class="anomaly-icon">🌐</span>
+              <div class="anomaly-body">
+                <div class="anomaly-title">Geolocation Unavailable</div>
+                <div class="anomaly-detail">{d['error']}</div>
+              </div>
+            </div>""", unsafe_allow_html=True)
+            if d.get("ip"):
+                st.markdown(f"""
+                <div class="card card-gb">
+                  <div class="ctbar tb-blue"></div>
+                  <div class="clabel">Local / Detected IP</div>
+                  <div class="cvalue" style="color:var(--blue2);font-size:1.4rem">{d['ip']}</div>
+                  <div style="margin-top:8px">
+                    <span class="badge b-amber">PRIVATE / LOCAL</span>
+                    <span class="badge b-gray" style="margin-left:6px">{d.get('version','IPv4')}</span>
+                  </div>
+                </div>""", unsafe_allow_html=True)
+            if d.get("_tried"):
+                with st.expander("🔧 API Attempts Debug"):
+                    for t in d["_tried"]:
+                        st.code(t)
         else:
             lat = d.get("lat"); lon = d.get("lon")
             cc  = d.get("country_code", "").lower()
@@ -1225,7 +1604,6 @@ with tab1:
             gmap_url = f"https://www.google.com/maps?q={lat},{lon}" if lat and lon else "#"
             osm_url  = f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=10" if lat and lon else "#"
 
-            # NEW: Proxy/VPN anomaly alert banner
             if threat and (threat.get("proxy") or threat.get("hosting")):
                 proxy_type = "Proxy/VPN" if threat.get("proxy") else "Hosting/Datacenter"
                 st.markdown(f"""
@@ -1277,7 +1655,6 @@ with tab1:
                 )
                 st.markdown(f'<div class="info-grid">{rows_html}</div>', unsafe_allow_html=True)
 
-                # NEW: Export button for location data
                 if d:
                     export_json = export_to_json(d, "ip_location")
                     st.download_button(
@@ -1356,7 +1733,6 @@ with tab2:
             best_sig = max((n["signal"] for n in nets), default=0)
             st.markdown(f'<div class="tile"><div class="tile-val" style="color:var(--amber)">{best_sig}%</div><div class="tile-lbl">Best Signal</div></div>', unsafe_allow_html=True)
 
-        # NEW: Open network anomaly alert
         if open_c > 0:
             st.markdown(f"""
             <div class="anomaly-alert">
@@ -1383,7 +1759,6 @@ with tab2:
 
         st.markdown(f'<div class="wifi-wrap"><table class="wtable"><thead><tr><th>SSID</th><th>Signal</th><th>%</th><th>Security</th><th>BSSID / MAC</th><th>Ch</th><th>Band</th></tr></thead><tbody>{rows}</tbody></table></div>', unsafe_allow_html=True)
 
-        # NEW: Export WiFi scan results
         if nets:
             wifi_json = export_to_json({"scan_time": datetime.now().isoformat(), "networks": nets})
             st.download_button(
@@ -1400,6 +1775,12 @@ with tab3:
     dt1, dt2, dt3, dt4, dt5 = st.tabs(["📡 Ping", "🛣 Traceroute", "🔎 DNS Lookup", "📋 ARP & Routes", "⚡ Speed Test"])
 
     with dt1:
+        # Show which ping method will be used
+        if _PING_BIN:
+            st.markdown(f'<div class="info-box info-box-green">✓ Using system ping binary: <strong>{_PING_BIN}</strong></div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="net-notice">⚡ System ping binary not found — using TCP-based latency measurement (pure Python fallback). Results show TCP RTT instead of ICMP.</div>', unsafe_allow_html=True)
+
         pc1, pc2, pc3 = st.columns([3, 1, 1])
         with pc1: p_h = st.text_input("Host", value="8.8.8.8", label_visibility="collapsed", key="ping_host")
         with pc2: p_c = st.selectbox("Count", [2, 4, 8, 16], index=1, label_visibility="collapsed")
@@ -1408,11 +1789,10 @@ with tab3:
             with st.spinner(f"Pinging {p_h}..."):
                 out = ping(p_h.strip(), p_c)
             st.session_state["ping_res"] = (p_h.strip(), out)
-            # NEW: append to ping history
             avg_new = parse_ping_avg(out)
             hist = st.session_state.get("ping_history") or []
             hist.append({"host": p_h.strip(), "avg": avg_new, "ts": datetime.now().strftime("%H:%M:%S")})
-            st.session_state["ping_history"] = hist[-20:]  # keep last 20
+            st.session_state["ping_history"] = hist[-20:]
 
         if st.session_state.get("ping_res"):
             h_, o_ = st.session_state["ping_res"]
@@ -1439,7 +1819,6 @@ with tab3:
               </div>
             </div>""", unsafe_allow_html=True)
 
-            # NEW: Ping history sparkline chart
             hist = st.session_state.get("ping_history") or []
             if len(hist) > 1:
                 vals = [h["avg"] for h in hist if h["avg"] is not None]
@@ -1467,6 +1846,11 @@ with tab3:
               <div class="term-body">{o_}<span class="term-cursor"></span></div></div>""", unsafe_allow_html=True)
 
     with dt2:
+        if _TRACE_BIN:
+            st.markdown(f'<div class="info-box info-box-green">✓ Using system traceroute: <strong>{_TRACE_BIN}</strong></div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="net-notice">⚡ traceroute binary not found — using TCP/socket based traceroute fallback.</div>', unsafe_allow_html=True)
+
         tc1, tc2 = st.columns([4, 1])
         with tc1: tr_h = st.text_input("Target", value="8.8.8.8", label_visibility="collapsed", key="trace_host")
         with tc2: rt = st.button("▶ Trace", use_container_width=True)
@@ -1511,7 +1895,7 @@ with tab3:
         with a2:
             if st.button("🗺 Routing Table", use_container_width=True):
                 with st.spinner(): st.session_state["route_res"] = get_routes()
-        for key, lbl in [("arp_res", "arp -n"), ("route_res", "ip route show")]:
+        for key, lbl in [("arp_res", "arp / ip neigh"), ("route_res", "ip route show")]:
             v = st.session_state.get(key)
             if v:
                 st.markdown(f"""<div class="term-wrap" style="margin-bottom:1rem"><div class="term-bar">
@@ -1540,7 +1924,6 @@ with tab3:
                 with c3:
                     st.markdown(f'<div class="card" style="text-align:center"><div class="clabel">Duration</div><div class="cval-purple">{sr["elapsed"]}s</div></div>', unsafe_allow_html=True)
 
-                # NEW: Speed quality assessment
                 mbps = sr["mbps"]
                 if mbps >= 100:    q, qc = "Excellent — 4K Streaming / Large transfers", "var(--green2)"
                 elif mbps >= 25:   q, qc = "Good — HD Streaming / Video calls", "var(--green2)"
@@ -1587,7 +1970,6 @@ with tab4:
             with c2: st.markdown(f'<div class="tile"><div class="tile-val" style="color:var(--green2)">{len(open_p)}</div><div class="tile-lbl">✓ Open</div></div>', unsafe_allow_html=True)
             with c3: st.markdown(f'<div class="tile"><div class="tile-val" style="color:var(--dim)">{len(close_p)}</div><div class="tile-lbl">✗ Closed</div></div>', unsafe_allow_html=True)
 
-            # NEW: Alert for dangerous open ports
             dangerous_open = [p for p in open_p if p["port"] in [23, 21, 445, 2375, 3389, 5900, 11211, 6379, 27017]]
             if dangerous_open:
                 dports_str = ", ".join(f'{p["port"]} ({p["service"]})' for p in dangerous_open)
@@ -1625,7 +2007,6 @@ with tab4:
                 )
             st.markdown(f'<div class="wifi-wrap"><table class="wtable"><thead><tr><th>State</th><th>Port</th><th>Service</th></tr></thead><tbody>{all_rows}</tbody></table></div>', unsafe_allow_html=True)
 
-            # NEW: Export scan results
             scan_export = export_to_json({
                 "target": ph_, "resolved": rip_,
                 "scan_time": datetime.now().isoformat(),
@@ -1667,7 +2048,6 @@ with tab4:
 
                 alive = [r for r in range_results if r["open"]]
 
-                # NEW: Summary tiles for range scan
                 c1, c2, c3 = st.columns(3)
                 with c1: st.markdown(f'<div class="tile"><div class="tile-val">{len(ip_list)}</div><div class="tile-lbl">IPs Scanned</div></div>', unsafe_allow_html=True)
                 with c2: st.markdown(f'<div class="tile"><div class="tile-val" style="color:var(--green2)">{len(alive)}</div><div class="tile-lbl">Hosts Alive</div></div>', unsafe_allow_html=True)
@@ -1691,7 +2071,6 @@ with tab4:
                 else:
                     st.info("No open ports found on any host in the range.")
 
-                # NEW: Export range scan
                 if range_results:
                     range_export = export_to_json({
                         "range": f"{r_start} - {r_end}",
@@ -1757,7 +2136,6 @@ with tab5:
             with col:
                 st.markdown(f'<div class="tile"><div class="tile-val" style="color:{c}">{v}</div><div class="tile-lbl">{l}</div></div>', unsafe_allow_html=True)
 
-        # NEW: Anomaly detection on sampled stats
         anomalies = detect_network_anomalies(stats)
         if anomalies:
             for title, detail in anomalies:
@@ -1782,7 +2160,6 @@ with tab5:
                     raddr_ip   = c.raddr.ip   if c.raddr else "—"
                     raddr_port = c.raddr.port if c.raddr else ""
                     pid_str    = str(c.pid) if c.pid else "—"
-                    # NEW: flag external connections
                     is_ext = not is_private(raddr_ip) if raddr_ip != "—" else False
                     ext_badge = '<span class="badge b-orange">EXT</span>' if is_ext else '<span class="badge b-gray">LAN</span>'
                     conn_rows += (
@@ -1841,7 +2218,6 @@ with tab6:
                 with c11: st.markdown(f'<div class="card"><div class="clabel">Private / RFC1918</div><div class="cvalue">{"✓ Yes" if sub["private"] else "✗ Public"}</div></div>', unsafe_allow_html=True)
                 with c12: st.markdown(f'<div class="card"><div class="clabel">Multicast</div><div class="cvalue">{"✓ Yes" if sub["multicast"] else "✗ No"}</div></div>', unsafe_allow_html=True)
 
-                # NEW: Export subnet info
                 sub_export = export_to_json({"cidr": ci_n, **sub})
                 st.download_button(
                     label="⬇ Export Subnet Info (JSON)",
@@ -1892,6 +2268,10 @@ with tab6:
         mp_h = st.text_area("Hosts (one per line)", value="8.8.8.8\n1.1.1.1\ngoogle.com\ngithub.com\ncloudflare.com", height=120, label_visibility="collapsed")
         mc1, mc2 = st.columns([3, 1])
         with mc2: mp_c = st.selectbox("Packets each", [2, 4, 8], index=1, label_visibility="collapsed")
+
+        if not _PING_BIN:
+            st.markdown('<div class="net-notice">⚡ Using TCP-based latency (no ping binary). Results measure TCP RTT.</div>', unsafe_allow_html=True)
+
         if st.button("📡 Ping All Hosts"):
             hosts   = [h.strip() for h in mp_h.strip().splitlines() if h.strip()]
             results = []; prog = st.progress(0)
@@ -1903,7 +2283,6 @@ with tab6:
 
         mp_results = st.session_state.get("multi_ping_res")
         if mp_results:
-            # NEW: Latency comparison histogram
             valid_results = [(h, avg) for h, avg in mp_results if avg is not None]
             if valid_results:
                 max_lat = max(avg for _, avg in valid_results) or 1
@@ -1932,7 +2311,6 @@ with tab6:
                 )
             st.markdown(f'<div class="wifi-wrap"><table class="wtable"><thead><tr><th>Host</th><th>Status</th><th>Avg Latency</th></tr></thead><tbody>{mp_rows}</tbody></table></div>', unsafe_allow_html=True)
 
-            # NEW: Export multi-ping
             ping_export = export_to_json({
                 "scan_time": datetime.now().isoformat(),
                 "results": [{"host": h, "avg_ms": avg} for h, avg in mp_results]
@@ -1944,7 +2322,6 @@ with tab6:
                 mime="application/json",
             )
 
-    # NEW TAB: Hostname Intel (uses hostname_res session state)
     with tt4:
         st.markdown('<div class="info-box info-box-blue">🖥 Resolve a hostname to its IPs, perform reverse lookups, and fetch basic geolocation for the resolved address.</div>', unsafe_allow_html=True)
         h4c1, h4c2 = st.columns([4, 1])
@@ -1970,7 +2347,6 @@ with tab6:
                 h4_geo  = hr4.get("geo", {})
                 h4_ptrs = hr4.get("ptr_map", [])
 
-                # Summary tiles
                 c1, c2, c3 = st.columns(3)
                 with c1: st.markdown(f'<div class="tile"><div class="tile-val" style="color:var(--blue2)">{len(h4_ipv4)}</div><div class="tile-lbl">IPv4 Addresses</div></div>', unsafe_allow_html=True)
                 with c2: st.markdown(f'<div class="tile"><div class="tile-val" style="color:var(--cyan)">{len(h4_ipv6)}</div><div class="tile-lbl">IPv6 Addresses</div></div>', unsafe_allow_html=True)
@@ -1990,7 +2366,6 @@ with tab6:
                 )
                 st.markdown(f'<div class="info-grid">{res_html}</div>', unsafe_allow_html=True)
 
-                # PTR Map
                 if h4_ptrs:
                     st.markdown('<div class="sec"><span class="sec-icon">🔄</span><span class="sec-txt">Reverse DNS (PTR)</span><div class="sec-line"></div></div>', unsafe_allow_html=True)
                     ptr_rows = "".join(
@@ -1999,7 +2374,6 @@ with tab6:
                     )
                     st.markdown(f'<div class="info-grid">{ptr_rows}</div>', unsafe_allow_html=True)
 
-                # Geo for first resolved IP
                 if h4_geo:
                     st.markdown('<div class="sec"><span class="sec-icon">🌍</span><span class="sec-txt">Geo Intelligence (First IP)</span><div class="sec-line"></div></div>', unsafe_allow_html=True)
                     geo_rows = [
@@ -2014,7 +2388,6 @@ with tab6:
                     )
                     st.markdown(f'<div class="info-grid">{geo_html}</div>', unsafe_allow_html=True)
 
-                # NEW: Export hostname intel
                 host_export = export_to_json(hr4)
                 st.download_button(
                     label="⬇ Export Hostname Intel (JSON)",
@@ -2052,12 +2425,10 @@ with tab7:
                     exp_badge = f'<span class="badge {"b-green" if days_left>30 else "b-amber" if days_left>0 else "b-red"}">{days_left}d left</span>'
                 except: days_left = None; exp_color = "var(--text2)"; exp_badge = ""
 
-                # NEW: Expiry anomaly alert
                 if days_left is not None and days_left <= 30:
                     urgency = "CRITICAL — Certificate has expired!" if days_left <= 0 else f"WARNING — Only {days_left} days until expiry"
-                    alert_cls = "anomaly-alert"
                     st.markdown(f"""
-                    <div class="{alert_cls}">
+                    <div class="anomaly-alert">
                       <span class="anomaly-icon">{"🚨" if days_left <= 0 else "⚠️"}</span>
                       <div class="anomaly-body">
                         <div class="anomaly-title">Certificate Expiry {urgency}</div>
@@ -2087,7 +2458,6 @@ with tab7:
                 st.markdown(f'<div class="sec"><span class="sec-icon">🔒</span><span class="sec-txt">Certificate Details · {ch_}</span><div class="sec-line"></div></div>', unsafe_allow_html=True)
                 st.markdown(f'<div class="info-grid">{rows_html}</div>', unsafe_allow_html=True)
 
-                # NEW: Export cert data
                 cert_export = export_to_json({"hostname": ch_, "days_left": days_left, **ci_})
                 st.download_button(
                     label="⬇ Export Certificate Data (JSON)",
@@ -2127,7 +2497,6 @@ with tab7:
             with sc2: st.markdown(f'<div class="tile"><div class="tile-val" style="color:var(--green2)">{present_count}</div><div class="tile-lbl">Present</div></div>', unsafe_allow_html=True)
             with sc3: st.markdown(f'<div class="tile"><div class="tile-val" style="color:#f87171">{len(CRITICAL_HEADERS)-present_count}</div><div class="tile-lbl">Missing</div></div>', unsafe_allow_html=True)
 
-            # NEW: Low score alert
             if score < 40:
                 st.markdown(f"""
                 <div class="anomaly-alert">
@@ -2171,7 +2540,6 @@ with tab7:
                 cc2 = wr.get("countryCode", "").lower()
                 flag2 = f'<img src="https://flagcdn.com/20x15/{cc2}.png" style="border-radius:2px;vertical-align:middle;margin-right:6px" />' if cc2 else ""
 
-                # NEW: Threat summary tiles
                 c1, c2, c3 = st.columns(3)
                 with c1:
                     proxy_col = "#f87171" if wr.get("proxy") else "var(--green2)"
@@ -2207,7 +2575,6 @@ with tab7:
                 )
                 st.markdown(f'<div class="info-grid">{rows_html}</div>', unsafe_allow_html=True)
 
-                # NEW: Export WHOIS data
                 whois_export = export_to_json(wr)
                 st.download_button(
                     label="⬇ Export WHOIS / ASN Data (JSON)",
