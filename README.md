@@ -231,3 +231,4 @@ This project is licensed under the **MIT License**.
 Built with ❤️ using Python and Streamlit to simplify network analysis.
 
 
+The link of the app is:- https://network-scout-ai-ffxx6jsixpxi53ahun2ewy.streamlit.app/
